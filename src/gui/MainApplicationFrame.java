@@ -43,11 +43,14 @@ public class MainApplicationFrame extends JFrame {
             .showConfirmDialog(null, "Дейтвительно хотите выйти?", "Выход из приложения",
                 JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-          System.exit(0);
+          windowClosed(e);
         }
       }
 
-
+      @Override
+      public void windowClosed(WindowEvent e) {
+        System.exit(0);
+      }
     });
 
     LogWindow logWindow = createLogWindow();
