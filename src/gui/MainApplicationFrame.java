@@ -33,17 +33,17 @@ public class MainApplicationFrame extends JFrame {
 
     setContentPane(desktopPane);
 
+    UIManager.put("OptionPane.yesButtonText", "Да");
+    UIManager.put("OptionPane.noButtonText", "Нет");
+
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-//                super.windowClosing(e);
-        int result = JOptionPane.showConfirmDialog(null, "Дейтвительно хотите выйти?", "alert",
-            JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane
+            .showConfirmDialog(null, "Дейтвительно хотите выйти?", "Выход из приложения",
+                JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.OK_OPTION) {
           System.exit(0);
-        }
-        else {
-
         }
       }
 
