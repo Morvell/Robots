@@ -6,6 +6,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -16,6 +23,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import log.Logger;
 
 
@@ -62,6 +71,41 @@ public class MainApplicationFrame extends JFrame {
 
   protected LogWindow createLogWindow() {
     LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
+    logWindow.addInternalFrameListener(new InternalFrameAdapter() {
+
+//      @Override
+//      public void internalFrameOpened(InternalFrameEvent e) {
+//        XMLDecoder decoder = null;
+//        String a=System.getProperty("user.home");
+//        try {
+//          decoder = new XMLDecoder(
+//              new BufferedInputStream(
+//                  new FileInputStream(System.getProperty("user.home")+"/"+"LogWindow.xml")));
+//        } catch (FileNotFoundException e1) {
+//          e1.printStackTrace();
+//        }
+//        logWindow[0] = (LogWindow)decoder.readObject();
+//        decoder.close();
+//
+//      }
+
+      @Override
+      public void internalFrameIconified(InternalFrameEvent e) {
+        super.internalFrameIconified(e);
+        XMLEncoder encoder = null;
+        String a=System.getProperty("user.home");
+        try {
+          encoder = new XMLEncoder(
+              new BufferedOutputStream(
+                  new FileOutputStream(System.getProperty("user.home")+"/"+"LogWindow.xml")));
+        } catch (FileNotFoundException e1) {
+          e1.printStackTrace();
+        }
+        encoder.writeObject(logWindow);
+        encoder.close();
+      }
+    });
+
     logWindow.setLocation(10, 10);
     logWindow.setSize(300, 800);
     setMinimumSize(logWindow.getSize());
