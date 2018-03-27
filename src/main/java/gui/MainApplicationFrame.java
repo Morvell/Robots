@@ -46,18 +46,6 @@ public class MainApplicationFrame extends JFrame {
     UIManager.put("OptionPane.yesButtonText", "Да");
     UIManager.put("OptionPane.noButtonText", "Нет");
 
-    addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowClosing(WindowEvent e) {
-        int result = JOptionPane
-            .showConfirmDialog(null, "Дейтвительно хотите выйти?", "Выход из приложения",
-                JOptionPane.YES_NO_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-          System.exit(0);
-        }
-      }
-    });
-
     LogWindow logWindow = createLogWindow();
     addWindow(logWindow);
 
@@ -65,47 +53,29 @@ public class MainApplicationFrame extends JFrame {
     gameWindow.setSize(400, 400);
     addWindow(gameWindow);
 
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        int result = JOptionPane
+            .showConfirmDialog(null, "Дейтвительно хотите выйти?", "Выход из приложения",
+                JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+          logWindow.makeClosedEvent();
+          System.exit(0);
+        }
+      }
+    });
+
+
+
+
+
     setJMenuBar(generateMenuBar());
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
   }
 
   protected LogWindow createLogWindow() {
     LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
-    logWindow.addInternalFrameListener(new InternalFrameAdapter() {
-
-//      @Override
-//      public void internalFrameOpened(InternalFrameEvent e) {
-//        XMLDecoder decoder = null;
-//        String a=System.getProperty("user.home");
-//        try {
-//          decoder = new XMLDecoder(
-//              new BufferedInputStream(
-//                  new FileInputStream(System.getProperty("user.home")+"/"+"LogWindow.xml")));
-//        } catch (FileNotFoundException e1) {
-//          e1.printStackTrace();
-//        }
-//        logWindow[0] = (LogWindow)decoder.readObject();
-//        decoder.close();
-//
-//      }
-
-      @Override
-      public void internalFrameIconified(InternalFrameEvent e) {
-        super.internalFrameIconified(e);
-        XMLEncoder encoder = null;
-        String a=System.getProperty("user.home");
-        try {
-          encoder = new XMLEncoder(
-              new BufferedOutputStream(
-                  new FileOutputStream(System.getProperty("user.home")+"/"+"LogWindow.xml")));
-        } catch (FileNotFoundException e1) {
-          e1.printStackTrace();
-        }
-        encoder.writeObject(logWindow);
-        encoder.close();
-      }
-    });
-
     logWindow.setLocation(10, 10);
     logWindow.setSize(300, 800);
     setMinimumSize(logWindow.getSize());
