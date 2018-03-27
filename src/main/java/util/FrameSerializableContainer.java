@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class FrameSerializater<T> implements Serializable{
-Point location;
-Dimension size;
-T content;
+public class FrameSerializableContainer<T> implements Serializable{
+  Point location;
+  Dimension size;
+  T content;
 
 }

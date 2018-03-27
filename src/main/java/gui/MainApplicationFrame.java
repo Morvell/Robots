@@ -61,6 +61,7 @@ public class MainApplicationFrame extends JFrame {
                 JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.OK_OPTION) {
           logWindow.makeClosedEvent();
+          gameWindow.makeClosedEvent();
           System.exit(0);
         }
       }
