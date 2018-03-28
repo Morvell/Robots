@@ -1,7 +1,11 @@
 package gui;
 
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -26,6 +30,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import log.Logger;
+import lombok.Value;
 
 
 public class MainApplicationFrame extends JFrame {
@@ -60,15 +65,16 @@ public class MainApplicationFrame extends JFrame {
             .showConfirmDialog(null, "Дейтвительно хотите выйти?", "Выход из приложения",
                 JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-          logWindow.makeClosedEvent();
-          gameWindow.makeClosedEvent();
+
+
+//          logWindow.makeClosedEvent();
+//          gameWindow.makeClosedEvent();
+//          System.exit(0);
+          
           System.exit(0);
         }
       }
     });
-
-
-
 
 
     setJMenuBar(generateMenuBar());

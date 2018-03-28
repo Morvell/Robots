@@ -52,7 +52,9 @@ public abstract class JInternalFrameSerializable<T> extends JInternalFrame imple
     XMLEncoder encoder = null;
     FrameSerializableContainer<T> serializater = new FrameSerializableContainer<T>(this, content);
 
-    System.out.println(this.getClass().getName());
+//    System.out.println(this.getClass().getName());
+//
+//    System.out.println(getFocusOwner());
 
     String a = System.getProperty("user.home");
     Path path = Paths.get(a + "/Robots");
@@ -89,17 +91,17 @@ public abstract class JInternalFrameSerializable<T> extends JInternalFrame imple
                       + ".xml")));
       serializater = (FrameSerializableContainer<T>) decoder.readObject();
       decoder.close();
-      setSize(serializater.getSize());
-      setLocation(serializater.getLocation());
-      setIcon(serializater.getIsIcon());
-      setMaximum(serializater.getIsMaximum());
-      setDateOfContent(serializater.getContent());
+
+      recreateFrame(serializater);
+
     } catch (FileNotFoundException e1) {
       System.out.println("Что-то не так с файлом");
     } catch (Exception e1) {
       System.out.println(e1);
     }
   }
+
+  public abstract void recreateFrame(FrameSerializableContainer<T> serializator);
 
   public void makeClosedEvent() {
 //    dispatchEvent(new InternalFrameEvent(this, InternalFrameEvent.INTERNAL_FRAME_CLOSED));

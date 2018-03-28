@@ -16,7 +16,7 @@ public class FrameSerializableContainer<T> implements Serializable{
   Dimension size;
   Boolean isIcon, isMaximum;
 
-  T content;
+  public T content;
 
   public FrameSerializableContainer(JInternalFrame frame, T content) {
     this.content = content;
