@@ -32,6 +32,7 @@ public abstract class JInternalFrameSerializable<T> extends JInternalFrame imple
   public JInternalFrameSerializable(String date, boolean b, boolean b1,
       boolean b2, boolean b3) {
     super(date, b, b1, b2, b3);
+
     addInternalFrameListener(new InternalFrameAdapter() {
 
       @Override
@@ -49,8 +50,7 @@ public abstract class JInternalFrameSerializable<T> extends JInternalFrame imple
 
   public void serialize() {
     XMLEncoder encoder = null;
-    FrameSerializableContainer<T> serializater = new FrameSerializableContainer<T>(
-        getLocation(), getSize(), content);
+    FrameSerializableContainer<T> serializater = new FrameSerializableContainer<T>(this, content);
 
     System.out.println(this.getClass().getName());
 
@@ -91,6 +91,8 @@ public abstract class JInternalFrameSerializable<T> extends JInternalFrame imple
       decoder.close();
       setSize(serializater.getSize());
       setLocation(serializater.getLocation());
+      setIcon(serializater.getIsIcon());
+      setMaximum(serializater.getIsMaximum());
       setDateOfContent(serializater.getContent());
     } catch (FileNotFoundException e1) {
       System.out.println("Что-то не так с файлом");
@@ -99,7 +101,7 @@ public abstract class JInternalFrameSerializable<T> extends JInternalFrame imple
     }
   }
 
-  public void makeClosedEvent(){
+  public void makeClosedEvent() {
 //    dispatchEvent(new InternalFrameEvent(this, InternalFrameEvent.INTERNAL_FRAME_CLOSED));
     try {
       setClosed(true);
