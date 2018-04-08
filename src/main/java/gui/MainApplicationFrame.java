@@ -17,6 +17,8 @@ import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -36,6 +38,7 @@ import lombok.Value;
 public class MainApplicationFrame extends JFrame {
 
   private final JDesktopPane desktopPane = new JDesktopPane();
+  private List<JInternalFrame> frames = new ArrayList<>();
 
   public MainApplicationFrame() {
     //Make the big window be indented 50 pixels from each edge
@@ -65,12 +68,7 @@ public class MainApplicationFrame extends JFrame {
             .showConfirmDialog(null, "Дейтвительно хотите выйти?", "Выход из приложения",
                 JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-
-
-//          logWindow.makeClosedEvent();
-//          gameWindow.makeClosedEvent();
-//          System.exit(0);
-          
+          frames.forEach(JInternalFrame::dispose);
           System.exit(0);
         }
       }
@@ -94,6 +92,7 @@ public class MainApplicationFrame extends JFrame {
   protected void addWindow(JInternalFrame frame) {
     desktopPane.add(frame);
     frame.setVisible(true);
+    frames.add(frame);
   }
 
 //    protected JMenuBar createMenuBar() {

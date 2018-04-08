@@ -3,20 +3,22 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.TextArea;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
+import java.io.Serializable;
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import log.LogChangeListener;
 import log.LogEntry;
 import log.LogWindowSource;
 import util.FrameSerializableContainer;
 import util.JInternalFrameSerializable;
 
-public class LogWindow extends JInternalFrameSerializable<TextArea> implements LogChangeListener,
-    ActionListener {
+public class LogWindow extends JInternalFrame implements LogChangeListener, Serializable {
 
   private LogWindowSource m_logSource;
+  private TextArea content;
 
 
   public LogWindow(LogWindowSource logSource) {
@@ -26,14 +28,29 @@ public class LogWindow extends JInternalFrameSerializable<TextArea> implements L
     content = new TextArea("");
     content.setSize(200, 500);
 
-    setDefaultCloseOperation(HIDE_ON_CLOSE);
-
-
     JPanel panel = new JPanel(new BorderLayout());
     panel.add(content, BorderLayout.CENTER);
     getContentPane().add(panel);
     pack();
     updateLogContent();
+
+    JInternalFrameSerializable<TextArea> serializater = new JInternalFrameSerializable<>(
+        getTitle());
+
+    addInternalFrameListener(new InternalFrameAdapter() {
+      @Override
+      public void internalFrameOpened(InternalFrameEvent e) {
+        recreateFrame(serializater.deserialize());
+      }
+
+      @Override
+      public void internalFrameClosed(InternalFrameEvent e) {
+        FrameSerializableContainer<TextArea> container = new FrameSerializableContainer<>(
+            getLocation(), getSize(), isIcon, isMaximum, content);
+
+        serializater.serialize(container);
+      }
+    });
   }
 
 
@@ -52,7 +69,6 @@ public class LogWindow extends JInternalFrameSerializable<TextArea> implements L
     EventQueue.invokeLater(this::updateLogContent);
   }
 
-  @Override
   public void recreateFrame(FrameSerializableContainer<TextArea> serializater) {
 
     try {
@@ -61,19 +77,15 @@ public class LogWindow extends JInternalFrameSerializable<TextArea> implements L
       setIcon(serializater.getIsIcon());
       setMaximum(serializater.getIsMaximum());
       setDateOfContent(serializater.getContent());
-    }
-    catch (PropertyVetoException e) {
+    } catch (PropertyVetoException e) {
+      System.out.println(e);
+    } catch (Exception e) {
       System.out.println(e);
     }
   }
 
-  @Override
   public void setDateOfContent(TextArea content) {
     this.content.setText(content.getText());
   }
 
-  @Override
-  public void actionPerformed(ActionEvent e) {
-    System.out.println();
-  }
 }

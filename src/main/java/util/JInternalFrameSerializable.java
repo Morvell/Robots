@@ -1,6 +1,5 @@
 package util;
 
-import java.beans.PropertyVetoException;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
@@ -9,13 +8,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.swing.JInternalFrame;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,36 +20,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public abstract class JInternalFrameSerializable<T> extends JInternalFrame implements Serializable {
+public class JInternalFrameSerializable<T>  {
 
-  protected T content;
+  String title;
 
-  public JInternalFrameSerializable(String date, boolean b, boolean b1,
-      boolean b2, boolean b3) {
-    super(date, b, b1, b2, b3);
-
-    addInternalFrameListener(new InternalFrameAdapter() {
-
-      @Override
-      public void internalFrameOpened(InternalFrameEvent e) {
-        deserialize();
-      }
-
-      @Override
-      public void internalFrameClosed(InternalFrameEvent e) {
-        serialize();
-      }
-    });
-  }
-
-
-  public void serialize() {
+  public void serialize(FrameSerializableContainer<T> container) {
     XMLEncoder encoder = null;
-    FrameSerializableContainer<T> serializater = new FrameSerializableContainer<T>(this, content);
-
-//    System.out.println(this.getClass().getName());
-//
-//    System.out.println(getFocusOwner());
+    FrameSerializableContainer<T> serializater = container;
 
     String a = System.getProperty("user.home");
     Path path = Paths.get(a + "/Robots");
@@ -69,7 +41,7 @@ public abstract class JInternalFrameSerializable<T> extends JInternalFrame imple
       encoder = new XMLEncoder(
           new BufferedOutputStream(
               new FileOutputStream(
-                  System.getProperty("user.home") + "/Robots/" + this.getClass().getName()
+                  System.getProperty("user.home") + "/Robots/" + title
                       + ".xml")));
     } catch (FileNotFoundException e1) {
       e1.printStackTrace();
@@ -79,40 +51,26 @@ public abstract class JInternalFrameSerializable<T> extends JInternalFrame imple
 
   }
 
-  public void deserialize() {
+  public FrameSerializableContainer<T> deserialize() {
     XMLDecoder decoder;
-    FrameSerializableContainer<T> serializater;
+    FrameSerializableContainer<T> serializater = new FrameSerializableContainer<T>();
     String a = System.getProperty("user.home");
     try {
       decoder = new XMLDecoder(
           new BufferedInputStream(
               new FileInputStream(
-                  System.getProperty("user.home") + "/Robots/" + this.getClass().getName()
+                  System.getProperty("user.home") + "/Robots/" + title
                       + ".xml")));
       serializater = (FrameSerializableContainer<T>) decoder.readObject();
       decoder.close();
-
-      recreateFrame(serializater);
 
     } catch (FileNotFoundException e1) {
       System.out.println("Что-то не так с файлом");
     } catch (Exception e1) {
       System.out.println(e1);
     }
+    return serializater;
   }
 
-  public abstract void recreateFrame(FrameSerializableContainer<T> serializator);
-
-  public void makeClosedEvent() {
-//    dispatchEvent(new InternalFrameEvent(this, InternalFrameEvent.INTERNAL_FRAME_CLOSED));
-    try {
-      setClosed(true);
-    } catch (PropertyVetoException e) {
-      e.printStackTrace();
-    }
-  }
-
-
-  public abstract void setDateOfContent(T content);
 
 }
