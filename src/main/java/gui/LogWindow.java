@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.TextArea;
 import java.beans.PropertyVetoException;
 import java.io.Serializable;
+import java.util.stream.StreamSupport;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.event.InternalFrameAdapter;
@@ -56,9 +57,9 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Seri
 
   private void updateLogContent() {
     StringBuilder contentLog = new StringBuilder();
-    for (LogEntry entry : m_logSource.all()) {
+    StreamSupport.stream(m_logSource.all().spliterator(),false).skip(1).forEach(entry -> {
       contentLog.append(entry.getMessage()).append("\n");
-    }
+    });
     this.content.append(contentLog.toString());
     this.content.invalidate();
   }
