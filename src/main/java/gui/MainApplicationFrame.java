@@ -1,11 +1,24 @@
 package gui;
 
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -16,12 +29,16 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import log.Logger;
+import lombok.Value;
 
 
 public class MainApplicationFrame extends JFrame {
 
   private final JDesktopPane desktopPane = new JDesktopPane();
+  private List<JInternalFrame> frames = new ArrayList<>();
 
   public MainApplicationFrame() {
     //Make the big window be indented 50 pixels from each edge
@@ -37,6 +54,20 @@ public class MainApplicationFrame extends JFrame {
     UIManager.put("OptionPane.yesButtonText", "Да");
     UIManager.put("OptionPane.noButtonText", "Нет");
 
+    LogWindow logWindow = createLogWindow();
+    addWindow(logWindow);
+
+    RobotInfoWindow robotInfoWindow = new RobotInfoWindow();
+    robotInfoWindow.setSize(400,400);
+
+    addWindow(robotInfoWindow);
+
+    GameWindow gameWindow = new GameWindow();
+    gameWindow.setSize(400, 400);
+    addWindow(gameWindow);
+
+    gameWindow.addObserver(robotInfoWindow);
+
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
@@ -44,17 +75,12 @@ public class MainApplicationFrame extends JFrame {
             .showConfirmDialog(null, "Дейтвительно хотите выйти?", "Выход из приложения",
                 JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.OK_OPTION) {
+          frames.forEach(JInternalFrame::dispose);
           System.exit(0);
         }
       }
     });
 
-    LogWindow logWindow = createLogWindow();
-    addWindow(logWindow);
-
-    GameWindow gameWindow = new GameWindow();
-    gameWindow.setSize(400, 400);
-    addWindow(gameWindow);
 
     setJMenuBar(generateMenuBar());
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -73,6 +99,7 @@ public class MainApplicationFrame extends JFrame {
   protected void addWindow(JInternalFrame frame) {
     desktopPane.add(frame);
     frame.setVisible(true);
+    frames.add(frame);
   }
 
 //    protected JMenuBar createMenuBar() {
