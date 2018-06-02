@@ -8,16 +8,20 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.util.Pair;
 import javax.swing.JPanel;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public class GameVisualizer extends JPanel {
+public class GameVisualizer extends JPanel implements Observed<GameVisualizerState>{
 
   private final Timer m_timer = initTimer();
+  private List<Observer<GameVisualizerState>> observers = new ArrayList<>();
 
   private static Timer initTimer() {
     Timer timer = new Timer("events generator", true);
@@ -90,23 +94,12 @@ public class GameVisualizer extends JPanel {
   }
 
   protected void onModelUpdateEvent() {
-    double distance = distance(m_targetPositionX, m_targetPositionY,
-        m_robotPositionX, m_robotPositionY);
-    if (distance < 0.5) {
-      return;
-    }
-    double velocity = maxVelocity;
-    double angleToTarget = angleTo(m_robotPositionX, m_robotPositionY, m_targetPositionX,
-        m_targetPositionY);
-    double angularVelocity = 0;
-    if (angleToTarget > m_robotDirection) {
-      angularVelocity = maxAngularVelocity;
-    }
-    if (angleToTarget < m_robotDirection) {
-      angularVelocity = -maxAngularVelocity;
-    }
+    Pair<Double, Double> choice = action(getGameState());
+    double velocity = choice.getKey();
+    double angularVelocity = choice.getValue();
 
     moveRobot(velocity, angularVelocity, 10);
+    this.notifyObservers();
   }
 
   private static double applyLimits(double value, double min, double max) {
@@ -193,4 +186,52 @@ public class GameVisualizer extends JPanel {
     g.setColor(Color.BLACK);
     drawOval(g, x, y, 5, 5);
   }
+
+
+
+  @Override
+  public void addObserver(Observer<GameVisualizerState> observer) {
+    this.observers.add(observer);
+  }
+
+
+  private GameVisualizerState getGameState(){
+    return new GameVisualizerState(m_robotPositionX,
+        m_robotPositionY, m_robotDirection, m_targetPositionX, m_targetPositionY,
+        maxVelocity, maxAngularVelocity);
+  }
+
+  public void notifyObservers() {
+    GameVisualizerState state = getGameState();
+    observers.forEach(observer -> observer.notify(state));
+  }
+
+  public Pair<Double, Double> action(GameVisualizerState gameState) {
+    double velocity = 0;
+    double angularVelocity = 0;
+
+    double distance = distance(gameState.getM_targetPositionX(), gameState.getM_targetPositionY(),
+        gameState.getM_robotPositionX(), gameState.getM_robotPositionY());
+    if (distance < 0.5)
+      return new Pair<>(velocity, angularVelocity);
+
+    double angleToTarget = angleTo(gameState.getM_robotPositionX(), gameState.getM_robotPositionY(),
+        gameState.getM_targetPositionX(), gameState.getM_targetPositionY());
+    double diffAngle = asNormalizedRadians(angleToTarget - gameState.getM_robotDirection());
+
+    if (diffAngle < 0.01){
+      velocity = gameState.getMaxVelocity();
+      return new Pair<>(velocity, angularVelocity);
+    }
+
+    if (diffAngle < Math.PI) {
+      angularVelocity = gameState.getMaxAngularVelocity();
+    } else if (diffAngle > Math.PI) {
+      angularVelocity = -1 * gameState.getMaxAngularVelocity();
+    }
+
+    return new Pair<>(velocity, angularVelocity);
+  }
+
+
 }

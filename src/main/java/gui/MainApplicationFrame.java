@@ -57,9 +57,16 @@ public class MainApplicationFrame extends JFrame {
     LogWindow logWindow = createLogWindow();
     addWindow(logWindow);
 
+    RobotInfoWindow robotInfoWindow = new RobotInfoWindow();
+    robotInfoWindow.setSize(400,400);
+
+    addWindow(robotInfoWindow);
+
     GameWindow gameWindow = new GameWindow();
     gameWindow.setSize(400, 400);
     addWindow(gameWindow);
+
+    gameWindow.addObserver(robotInfoWindow);
 
     addWindowListener(new WindowAdapter() {
       @Override

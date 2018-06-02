@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.TextArea;
 import java.beans.PropertyVetoException;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
@@ -11,18 +12,23 @@ import util.FrameSerializableContainer;
 import util.JFrameSerializer;
 
 @Log
-public class GameWindow extends JInternalFrame implements Observed<GameVisualizerState>{
+public class RobotInfoWindow extends JInternalFrame implements Observer<GameVisualizerState> {
+  private TextArea content;
 
-  GameVisualizer content;
+  public RobotInfoWindow() {
+    super("Информация о роботе", true, true, true, true);
+    content = new TextArea("sdfsdfsdf");
+    content.setSize(200, 500);
 
-  public GameWindow() {
-    super("Игровое поле", true, true, true, true);
-    content = new GameVisualizer();
     JPanel panel = new JPanel(new BorderLayout());
     panel.add(content, BorderLayout.CENTER);
+    notify(new GameVisualizerState());
     getContentPane().add(panel);
     pack();
-    JFrameSerializer<GameVisualizer> serializater = new JFrameSerializer<>(getTitle());
+
+
+    JFrameSerializer<TextArea> serializater = new JFrameSerializer<>(
+        getTitle());
 
     addInternalFrameListener(new InternalFrameAdapter() {
       @Override
@@ -32,37 +38,35 @@ public class GameWindow extends JInternalFrame implements Observed<GameVisualize
 
       @Override
       public void internalFrameClosed(InternalFrameEvent e) {
-        FrameSerializableContainer<GameVisualizer> container = new FrameSerializableContainer<>(
-            getLocation(), getSize(), isIcon, isMaximum, content);
+        FrameSerializableContainer<TextArea> container = new FrameSerializableContainer<>(
+            getLocation(), getSize(), isIcon(), isMaximum(), content);
 
         serializater.serialize(container);
       }
     });
-
   }
 
+  public void recreateFrame(FrameSerializableContainer<TextArea> serializater) {
 
-  public void recreateFrame(FrameSerializableContainer<GameVisualizer> serializater) {
     try {
       setSize(serializater.getSize());
       setLocation(serializater.getLocation());
       setIcon(serializater.getIsIcon());
       setMaximum(serializater.getIsMaximum());
-      setDateOfContent(serializater.getContent());
+//      setDateOfContent(serializater.getContent());
     } catch (PropertyVetoException e) {
-      System.out.println(e);
+      log.warning(e.getMessage());
     } catch (Exception e) {
-      System.out.println(e);
+      log.severe(e.getMessage());
     }
   }
 
-  public void setDateOfContent(GameVisualizer content) {
-    this.content.setGameVisualizer(content);
+  public void setDateOfContent(TextArea content) {
+    this.content.setText(content.getText());
   }
 
-
   @Override
-  public void addObserver(Observer<GameVisualizerState> observer) {
-    content.addObserver(observer);
+  public void notify(GameVisualizerState state) {
+    content.setText(state.makeText());
   }
 }

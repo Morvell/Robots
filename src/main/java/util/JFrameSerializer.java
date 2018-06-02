@@ -8,33 +8,37 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class JInternalFrameSerializable<T>  {
+@Log
+public class JFrameSerializer<T> {
 
   String title;
-
   public void serialize(FrameSerializableContainer<T> container) {
     XMLEncoder encoder = null;
     FrameSerializableContainer<T> serializater = container;
-
     String a = System.getProperty("user.home");
     Path path = Paths.get(a + "/Robots");
     if (!Files.exists(path)) {
       try {
         Files.createDirectories(path);
       } catch (IOException ex) {
-        ex.printStackTrace();
+        log.warning(ex.getMessage());
       }
     }
     try {
@@ -44,7 +48,7 @@ public class JInternalFrameSerializable<T>  {
                   System.getProperty("user.home") + "/Robots/" + title
                       + ".xml")));
     } catch (FileNotFoundException e1) {
-      e1.printStackTrace();
+      log.warning(e1.getMessage());
     }
     encoder.writeObject(serializater);
     encoder.close();
@@ -65,9 +69,9 @@ public class JInternalFrameSerializable<T>  {
       decoder.close();
 
     } catch (FileNotFoundException e1) {
-      System.out.println("Что-то не так с файлом");
+      log.warning(e1.getMessage());
     } catch (Exception e1) {
-      System.out.println(e1);
+      log.severe(e1.getMessage());
     }
     return serializater;
   }

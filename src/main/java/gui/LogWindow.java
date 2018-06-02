@@ -11,11 +11,12 @@ import javax.swing.JPanel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import log.LogChangeListener;
-import log.LogEntry;
 import log.LogWindowSource;
+import lombok.extern.java.Log;
 import util.FrameSerializableContainer;
-import util.JInternalFrameSerializable;
+import util.JFrameSerializer;
 
+@Log
 public class LogWindow extends JInternalFrame implements LogChangeListener, Serializable {
 
   private LogWindowSource m_logSource;
@@ -35,7 +36,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Seri
     pack();
     updateLogContent();
 
-    JInternalFrameSerializable<TextArea> serializater = new JInternalFrameSerializable<>(
+    JFrameSerializer<TextArea> serializater = new JFrameSerializer<>(
         getTitle());
 
     addInternalFrameListener(new InternalFrameAdapter() {
@@ -47,7 +48,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Seri
       @Override
       public void internalFrameClosed(InternalFrameEvent e) {
         FrameSerializableContainer<TextArea> container = new FrameSerializableContainer<>(
-            getLocation(), getSize(), isIcon, isMaximum, content);
+            getLocation(), getSize(), isIcon(), isMaximum(), content);
 
         serializater.serialize(container);
       }
@@ -79,9 +80,9 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Seri
       setMaximum(serializater.getIsMaximum());
       setDateOfContent(serializater.getContent());
     } catch (PropertyVetoException e) {
-      System.out.println(e);
+      log.warning(e.getMessage());
     } catch (Exception e) {
-      System.out.println(e);
+      log.severe(e.getMessage());
     }
   }
 
